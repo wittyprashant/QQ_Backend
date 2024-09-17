@@ -70,12 +70,12 @@ router.get('/getAllInvoices', async (req, res) => {
     
         if (!invoicesData || !Array.isArray(invoicesData.Invoices)) {
             throw new Error('Invalid data format: Invoices should be an array');
-          }
+        }
 
-          const existingInvoices = await Invoice.find({});
-          const existingInvoiceIDs = new Set(existingInvoices.map(invoice => invoice.InvoiceID));
+        const existingInvoices = await Invoice.find({});
+        const existingInvoiceIDs = new Set(existingInvoices.map(invoice => invoice.InvoiceID));
 
-          const newInvoices = invoicesData.Invoices
+        const newInvoices = invoicesData.Invoices
             .filter(invoice => invoice.InvoiceID && !existingInvoiceIDs.has(invoice.InvoiceID))
             .map(invoice => ({
                 ...invoice,
@@ -84,12 +84,12 @@ router.get('/getAllInvoices', async (req, res) => {
                 updatedDateUTC: parseXeroDate(invoice.UpdatedDateUTC),
             }));
     
-          if (newInvoices.length > 0) {
+        if (newInvoices.length > 0) {
             await Invoice.insertMany(newInvoices);
             res.status(200).json({ status: 200, success: true, data: invoicesData, message: 'Invoices processed successfully.' });
-          } else {
+        } else {
             res.status(200).json({ status: 200, success: true, data: invoicesData, message: 'No new invoices to save' });
-          }
+        }
     } catch (err) {
         res.status(500).json({status: 500, success: 'false', message: err.message, code: err.code, data: []});
     }

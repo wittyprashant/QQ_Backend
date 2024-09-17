@@ -56,6 +56,7 @@ router.get('/transaction-detail/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const transaction = await Transaction.findById(id);
+        
         res.status(200).json({status: 200, success: true,  data: transaction, message: 'Get transaction detail successfully.' });
     } catch (err) {
         res.status(500).json({status: 500, success: false, message: err, data:[] });
@@ -72,7 +73,7 @@ router.get('/getAllTransaction', async (req, res) => {
         const response = await axios.request(config);
 
         const bankTransactionsData = response.data;
-
+        
         if (Array.isArray(bankTransactionsData.BankTransactions)) {
             const existingTransactions = await Transaction.find({});
             const existingTransactionIDs = new Set(existingTransactions.map(transaction => transaction.TransactionID));
@@ -85,7 +86,6 @@ router.get('/getAllTransaction', async (req, res) => {
 
             if (newTransactions.length > 0) {
                 await Transaction.insertMany(newTransactions);
-            } else {
             }
             res.status(200).json({ status: 200, success: true, data: bankTransactionsData, message: 'Transactions processed successfully' });
         } else {
@@ -96,5 +96,25 @@ router.get('/getAllTransaction', async (req, res) => {
     }
 });
 
+router.get('/bankDetails', async (req, res) => {
+    try {
+        const transactions = await Transaction.find({}, 'BankAccount');
+
+        const bankDetails = transactions
+            .map(transaction => ({
+                Name: transaction.BankAccount?.Name,
+                AccountID: transaction.BankAccount?.AccountID,
+            }))
+            .filter(bank => bank.Name && bank.AccountID);
+
+        const uniqueBankDetails = Array.from(
+            new Map(bankDetails.map(bank => [bank.AccountID, bank])).values()
+        );
+
+        res.status(200).json({ status: 200, success: true, data: uniqueBankDetails, message: 'Bank details fetched successfully.' });
+    } catch (err) {
+        res.status(500).json({ status: 500, success: false, message: 'Something went wrong!' });
+    }
+});
 
 export default router;

@@ -24,7 +24,6 @@ const xero = new XeroClient({
 });
 
 router.post('/connect', async (req, res) => {
-    return false;
   try {
     const consentUrl = await xero.buildConsentUrl();
     const consentUrl123 = await xero.getClientCredentialsToken();

@@ -1,14 +1,23 @@
 import mongoose from 'mongoose';
 
-const Account = new mongoose.Schema({
-    name: { type: String, unique: true, trim: true, max: 50, required: [true, 'Role name is required'] },
-    permission: { type: String, trim: true, required: [true, 'Permission is required'] },
-    action_permission: { type: String, trim: true, required: [true, 'Action permission is required'] },
-    is_listing: { type: Number, default: 0, min: [0, 'is_listing cannot be less than 0'] },
-    status: { type: Boolean, default: true },
-    is_deleted: { type: Boolean, default: false }
+const AccountSchema = new mongoose.Schema({
+    AccountID: { type: String, required: true, unique: true },
+    Code: { type: String, required: true },
+    Name: { type: String, required: true },
+    Status: { type: String, required: true },
+    Type: { type: String, required: true },
+    TaxType: { type: String },
+    Class: { type: String },
+    EnablePaymentsToAccount: { type: Boolean },
+    ShowInExpenseClaims: { type: Boolean },
+    BankAccountNumber: { type: String },
+    BankAccountType: { type: String },
+    CurrencyCode: { type: String },
+    ReportingCode: { type: String },
+    ReportingCodeName: { type: String },
+    HasAttachments: { type: Boolean },
+    UpdatedDateUTC: { type: String },
+    AddToWatchlist: { type: Boolean }
 }, { timestamps: true });
 
-const AccountSchema = mongoose.model('Account', Account);
-
-export default AccountSchema;
+export default mongoose.model('Account', AccountSchema);

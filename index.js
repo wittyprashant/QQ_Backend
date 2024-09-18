@@ -9,6 +9,7 @@ import userRoutes from  './routes/userRoutes.js';
 import xeroRoutes from  './routes/xeroRoutes.js';
 import transactionRoutes from  './routes/transactionRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
+import accountRoutes from './routes/accountRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import purchaseOrderRoutes from './routes/purchaseOrderRoutes.js';
@@ -27,7 +28,8 @@ app.use('/api/v1/transaction', transactionRoutes);
 app.use('/api/v1/invoice', invoiceRoutes);
 app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/payment',paymentRoutes);
-app.use('/api/v1/purchaseOrder', purchaseOrderRoutes)
+app.use('/api/v1/purchaseOrder', purchaseOrderRoutes);
+app.use('/api/v1/account', accountRoutes);
 
 app.get('/', async (req, res) => {
   res.status(200).json({

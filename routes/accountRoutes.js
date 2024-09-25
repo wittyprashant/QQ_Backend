@@ -104,6 +104,6 @@ router.get('/syncAllAccounts', async (req, res) => {
     }
 });
 
-setInterval(syncGetAllAccounts, 2000); // Sync every 2 seconds
+setInterval(syncGetAllAccounts, 2000);
 
 export default router;

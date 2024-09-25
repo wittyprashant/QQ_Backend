@@ -55,7 +55,6 @@ router.get('/', async (req, res) => {
 router.get('/transaction-detail/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        // const transaction = await Transaction.findById(id);
         const transaction = await Transaction.findOne({ BankTransactionID: id });
         
         res.status(200).json({status: 200, success: true,  data: transaction, message: 'Get transaction detail successfully.' });

@@ -139,6 +139,18 @@ router.get('/getAllInvoices', async (req, res) => {
     }
 });
 
+router.get('/invoice-detail/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        // const transaction = await Transaction.findById(id);
+        const invoices = await Invoice.findOne({ InvoiceID: id });
+        
+        res.status(200).json({status: 200, success: true,  data: invoices, message: 'Get transaction detail successfully.' });
+    } catch (err) {
+        res.status(500).json({status: 500, success: false, message: err, data:[] });
+    }
+});
+
 setInterval(syncGetAllInvoices, 2000);
 
 export default router;

@@ -8,6 +8,12 @@ dotenv.config();
 
 const router = express.Router();
 
+/**
+ * Parses a Xero date string and returns a JavaScript Date object.
+ * 
+ * @param {string} dateString - The date string in Xero format (e.g., "/Date(1627884000000+0000)/").
+ * @returns {Date|null} The parsed Date object or null if the input format is invalid.
+ */
 const parseXeroDate = (dateString) => {
     const match = dateString.match(/\/Date\((\d+)([+-]\d+)?\)\//);
     if (match) {
@@ -17,6 +23,15 @@ const parseXeroDate = (dateString) => {
     return null;
 };
 
+/**
+ * Handles the retrieval of contacts based on query parameters.
+ * 
+ * @async
+ * @function getContacts
+ * @param {Object} req - The request object containing query parameters.
+ * @param {Object} res - The response object used to send the response.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
 router.get('/', async (req, res) => {
     const { contact_status, start_date, end_date } = req.query;
 
@@ -58,6 +73,15 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * Route handler to sync and save contacts from an external API.
+ * 
+ * @async
+ * @function getAllContacts
+ * @param {Object} req - The request object containing query parameters.
+ * @param {Object} res - The response object used to send the response.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
 router.get('/getAllContacts', async (req, res) => {
     try {
         const config = createAxiosConfig(

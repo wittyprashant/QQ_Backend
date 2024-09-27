@@ -4,6 +4,12 @@ import xml2js from 'xml2js';
 
 const saltRounds = 10;
 
+/**
+ * Hashes a plain text password using bcrypt.
+ *
+ * @param {string} password - The plain text password to hash.
+ * @returns {Promise<string>} - A promise that resolves to the hashed password.
+ */
 export const hashPassword = (password) => {
   return new Promise((resolve, reject) => {
     bcrypt.hash(password.toString(), saltRounds, (err, hashedPassword) => {
@@ -16,6 +22,13 @@ export const hashPassword = (password) => {
   });
 };
 
+/**
+ * Compares a plain text password with a hashed password.
+ *
+ * @param {string} password - The plain text password to compare.
+ * @param {string} hashedPassword - The hashed password to compare against.
+ * @returns {Promise<boolean>} - A promise that resolves to `true` if the passwords match, otherwise `false`.
+ */
 export const comparePassword = async (password, hashedPassword) => {
   try {
     const match = await bcrypt.compare(password.toString(), hashedPassword);
@@ -26,6 +39,14 @@ export const comparePassword = async (password, hashedPassword) => {
 };
 
 
+/**
+ * Creates an Axios configuration object for making HTTP requests.
+ *
+ * @param {string} method - The HTTP method to be used (e.g., 'GET', 'POST').
+ * @param {string} endPoint - The API endpoint to be appended to the base URL.
+ * @param {number} [maxBodyLength=Infinity] - The maximum allowed size for the request body (optional, defaults to Infinity).
+ * @returns {object} - The Axios configuration object.
+ */
 export const createAxiosConfig = (method, endPoint, maxBodyLength = Infinity) => {
   return {
     method: method,
@@ -40,6 +61,11 @@ export const createAxiosConfig = (method, endPoint, maxBodyLength = Infinity) =>
   };
 };
 
+/**
+ * Generates an OAuth2 token by sending a POST request to Xero's identity endpoint.
+ *
+ * @returns {Promise<object>} - A promise that resolves to the token data returned from the Xero API.
+ */
 export const genrateToken = () => {
   const data = qs.stringify({ 'grant_type': 'client_credentials' });
 
@@ -62,14 +88,18 @@ export const genrateToken = () => {
   }
 }
 
+/**
+ * Parses XML data into an array of organizations.
+ *
+ * @param {string} xmlData - The XML data to be parsed.
+ * @returns {Promise<Array>} - A promise that resolves to an array of organizations parsed from the XML.
+ */
 export const parseXmlToArray = async (xmlData) => {
   return new Promise((resolve, reject) => {
       xml2js.parseString(xmlData, { explicitArray: true, mergeAttrs: true }, (err, result) => {
           if (err) {
               reject(err);
           } else {
-              // Assuming you want to convert the whole XML object to an array format
-              // You can customize this part according to your specific needs
               resolve(result.Response.Organisations.Organisation);
           }
       });

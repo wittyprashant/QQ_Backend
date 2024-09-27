@@ -8,11 +8,31 @@ dotenv.config();
 
 const router = express.Router();
 
+/**
+ * Parses a Xero date string and converts it to a JavaScript Date object.
+ *
+ * @param {string} dateString - The Xero date string in the format /Date(timestamp)/.
+ * @returns {Date|null} - Returns a Date object if parsing is successful; otherwise, returns null.
+ */
 const parseXeroDate = (dateString) => {
     const timestamp = parseInt(dateString.replace(/\/Date\((\d+)\)\//, '$1'), 10);
     return new Date(timestamp);
 };
 
+/**
+ * Retrieves invoices based on various query parameters.
+ * 
+ * This endpoint allows filtering invoices by type, status, line amount type,
+ * and date range. It returns a list of invoices that match the criteria.
+ * 
+ * @route GET /
+ * @query {string} [invoice_type] - The type of the invoice (e.g., 'ACCREC', 'ACCPAY').
+ * @query {string} [invoice_status] - The status of the invoice (e.g., 'AUTHORISED', 'DRAFT').
+ * @query {string} [line_amount_type] - The line amount type (e.g., 'Exclusive', 'Inclusive').
+ * @query {string} [start_date] - The start date for filtering invoices.
+ * @query {string} [end_date] - The end date for filtering invoices.
+ * @returns {Object} - An object containing the status, success flag, data (invoices), and a message.
+ */
 router.get('/', async (req, res) => {
     const { invoice_type, invoice_status, line_amount_type, start_date, end_date } = req.query;
 
@@ -26,22 +46,21 @@ router.get('/', async (req, res) => {
     if (line_amount_type) {
         query.LineAmountTypes = line_amount_type;
     }
-
     if (start_date || end_date) {
         const dateQuery = {};
-
         if (start_date) {
             const parsedStartDate = new Date(start_date);
             if (!isNaN(parsedStartDate.getTime())) {
-                dateQuery.$gt = parsedStartDate;
+                dateQuery.$gte = parsedStartDate;
             } else {
                 return res.status(400).json({ status: 400, success: false, message: 'Invalid start date format' });
             }
         }
+
         if (end_date) {
             const parsedEndDate = new Date(end_date);
             if (!isNaN(parsedEndDate.getTime())) {
-                dateQuery.$lt = parsedEndDate;
+                dateQuery.$lte = parsedEndDate; 
             } else {
                 return res.status(400).json({ status: 400, success: false, message: 'Invalid end date format' });
             }
@@ -51,12 +70,22 @@ router.get('/', async (req, res) => {
     }
 
     try {
-        const invoices = await Invoice.find({query}).sort({ Date: -1 });
-        res.status(200).json({status: 200, success: true,  data: invoices, message: 'Get all invoices successfully.' });
+        const invoices = await Invoice.find(query).sort({ Date: -1 });
+        res.status(200).json({
+            status: 200,
+            success: true,
+            data: invoices,
+            message: 'Get all invoices successfully.'
+        });
     } catch (err) {
-        res.status(500).json({status: 500, success: false, message: 'Something went wrong!' });
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: 'Something went wrong!'
+        });
     }
 });
+
 
 // router.get('/getAllInvoices', async (req, res) => {
 //     try {
@@ -95,6 +124,13 @@ router.get('/', async (req, res) => {
 //     }
 // });
 
+/**
+ * Syncs and retrieves all invoices from an external source.
+ * 
+ * @function syncGetAllInvoices
+ * @returns {Promise<void>} - A promise that resolves when the sync operation is complete.
+ * @throws {Error} Throws an error if the data format is invalid or if an error occurs during syncing.
+ */
 async function syncGetAllInvoices() {
     try {
         const config = createAxiosConfig(
@@ -130,6 +166,14 @@ async function syncGetAllInvoices() {
     }
 }
 
+/**
+ * Route handler to sync and retrieve all invoices.
+ * 
+ * @function getAllInvoices
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object used to send the response.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
 router.get('/getAllInvoices', async (req, res) => {
     try {
         await syncGetAllInvoices();
@@ -139,6 +183,14 @@ router.get('/getAllInvoices', async (req, res) => {
     }
 });
 
+/**
+ * Route handler to get the details of a specific invoice by its ID.
+ * 
+ * @function getInvoiceDetail
+ * @param {Object} req - The request object containing the invoice ID in the parameters.
+ * @param {Object} res - The response object used to send the response.
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
 router.get('/invoice-detail/:id', async (req, res) => {
     try {
         const { id } = req.params;

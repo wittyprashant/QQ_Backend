@@ -1,5 +1,13 @@
 import jwt from 'jsonwebtoken';
 
+/**
+ * Middleware to authenticate a JWT token.
+ *
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @param {function} next - The next middleware function to call if authentication is successful.
+ * @returns {void} - Sends a response and does not return anything.
+ */
 const authenticateToken = (req, res, next) => {
   const token = req.header('Authorization')?.split(' ')[1];
 

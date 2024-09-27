@@ -8,6 +8,13 @@ dotenv.config();
 
 const router = express.Router();
 
+/**
+ * Parses a Xero date string in the format /Date(timestamp±timezone)/ 
+ * and converts it to a JavaScript Date object.
+ *
+ * @param {string} dateString - The Xero date string to parse.
+ * @returns {Date|null} - Returns a Date object if parsing is successful; otherwise, returns null.
+ */
 const parseXeroDate = (dateString) => {
     const match = dateString.match(/\/Date\((\d+)([+-]\d+)?\)\//);
     if (match) {
@@ -17,6 +24,18 @@ const parseXeroDate = (dateString) => {
     return null;
 };
 
+/**
+ * Fetches all payment records based on optional query parameters.
+ *
+ * @route GET /
+ * @query {string} [payment_type] - The type of payment to filter by.
+ * @query {string} [status] - The status of the payments to filter by.
+ * @query {string} [start_date] - The start date for filtering payments (inclusive).
+ * @query {string} [end_date] - The end date for filtering payments (inclusive).
+ * @returns {object} 200 - An object containing payment records and a success message.
+ * @returns {object} 400 - An error message if the date format is invalid.
+ * @returns {object} 500 - An error message if something went wrong during the query.
+ */
 router.get('/', async (req, res) => {
     const { payment_type, status, start_date, end_date } = req.query;
 
@@ -61,6 +80,13 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * Retrieves all payments from the external API and saves new payments to the database.
+ *
+ * @route GET /getAllPayments
+ * @returns {object} 200 - An object containing the processed payments data or a message indicating no new payments.
+ * @returns {object} 500 - An error message if something went wrong during the API request or database operation.
+ */
 router.get('/getAllPayments', async (req, res) => {
     try {
         const config = createAxiosConfig(

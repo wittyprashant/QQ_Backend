@@ -8,6 +8,12 @@ dotenv.config();
 
 const router = express.Router();
 
+/**
+ * Parses a Xero date string and returns a JavaScript Date object.
+ * 
+ * @param {string} xeroDateString - The date string in Xero format (e.g., "/Date(1627884000000+0000)/").
+ * @returns {Date|null} The parsed Date object or null if the input is invalid.
+ */
 function parseXeroDate(xeroDateString) {
     const timestampMatch = xeroDateString.match(/\/Date\((\d+)\+\d+\)\//);
     if (timestampMatch && timestampMatch[1]) {
@@ -16,6 +22,19 @@ function parseXeroDate(xeroDateString) {
     return null;
 }
 
+/**
+ * @route GET /
+ * @group Accounts - Operations related to accounts
+ * @param {string} [account_status] - Filter accounts by status
+ * @param {string} [account_type] - Filter accounts by type
+ * @param {string} [account_class] - Filter accounts by class
+ * @param {string} [start_date] - Filter accounts updated after this date (format: ISO 8601)
+ * @param {string} [end_date] - Filter accounts updated before this date (format: ISO 8601)
+ * @returns {object} 200 - An object containing the status, success flag, and account data
+ * @returns {object} 400 - An error object if the date format is invalid
+ * @returns {object} 500 - An error object if there is a server error
+ * 
+ */
 router.get('/', async (req, res) => {
     const { account_status, account_type, account_class, start_date, end_date } = req.query;
 
@@ -62,6 +81,14 @@ router.get('/', async (req, res) => {
 });
 
 
+/**
+ * Syncs all accounts from an external API and saves new accounts to the database.
+ *
+ * @async
+ * @function syncGetAllAccounts
+ * @returns {Promise<void>} 
+ * @throws {Error} If the API response is invalid or if there is an error during the syncing process.
+ */
 async function syncGetAllAccounts() {
     try {
         const config = createAxiosConfig(
@@ -95,6 +122,13 @@ async function syncGetAllAccounts() {
     }
 }
 
+/**
+ * @route GET /syncAllAccounts
+ * @group Accounts - Operations related to accounts
+ * @returns {object} 200 - Accounts synced successfully
+ * @returns {object} 500 - Error message if syncing accounts fails
+ * @throws {Error} - Returns an error message if there is an issue syncing accounts
+ */
 router.get('/syncAllAccounts', async (req, res) => {
     try {
         await syncGetAllAccounts();

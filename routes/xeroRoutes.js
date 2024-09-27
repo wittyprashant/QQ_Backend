@@ -23,6 +23,13 @@ const xero = new XeroClient({
 	scopes: scopes.split(' '),
 });
 
+/**
+ * Xero connection endpoint.
+ *
+ * @route POST /connect
+ * @returns {Object} 200 - Successful response containing the consent URL
+ * @returns {Object} 500 - Server error if generating the consent URL or token fails
+ */
 router.post('/connect', async (req, res) => {
   try {
     const consentUrl = await xero.buildConsentUrl();
@@ -33,6 +40,13 @@ router.post('/connect', async (req, res) => {
   }
 });
 
+/**
+ * Xero OAuth2 callback endpoint.
+ *
+ * @route GET /callback
+ * @returns {Object} 302 - Redirects to the home page after processing the callback
+ * @returns {Object} 500 - Server error if token retrieval or connection fetch fails
+ */
 router.get('/callback', async (req, res) => {
     try {
         client.CLOCK_TOLERANCE = 5;

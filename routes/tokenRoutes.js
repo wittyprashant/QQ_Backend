@@ -8,6 +8,13 @@ dotenv.config();
 
 const router = express.Router();
 
+/**
+ * Retrieves all invoices from an external API.
+ *
+ * @route GET /getAllInvoices
+ * @returns {Object} 200 - An object containing the success flag, message, and the invoice data
+ * @returns {Object} 500 - An object containing the success flag, error message, code, and empty data for server errors
+ */
 router.get('/getAllInvoices', async (req, res) => {
     try {
         const config = createAxiosConfig(
@@ -18,12 +25,9 @@ router.get('/getAllInvoices', async (req, res) => {
         const response = await axios.request(config);
         console.log(response);
         return false;
-        // const bankTransactionsData = response.data;
-
     } catch (err) {
         res.status(500).json({ success: 'false', message: err.message, code: err.code, data: []});
     }
 });
-
 
 export default router;

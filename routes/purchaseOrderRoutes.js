@@ -8,11 +8,25 @@ dotenv.config();
 
 const router = express.Router();
 
+/**
+ * Parses a Xero date string in the format /Date(timestamp±timezone)/ 
+ * and converts it to a JavaScript Date object.
+ *
+ * @param {string} dateString - The Xero date string to parse.
+ * @returns {Date|null} - Returns a Date object if parsing is successful; otherwise, returns null.
+ */
 function parseXeroDate(dateString) {
     const timestampMatch = /\/Date\((\d+)\+\d+\)\//.exec(dateString);
     return timestampMatch ? new Date(parseInt(timestampMatch[1], 10)) : null;
 }
 
+/**
+ * Fetches purchase orders based on query parameters such as purchase order status and date range.
+ * 
+ * @param {Object} req - The request object containing query parameters.
+ * @param {Object} res - The response object used to send back the desired HTTP response.
+ * @returns {void} - Sends back a JSON response containing the purchase orders or an error message.
+ */
 router.get('/', async (req, res) => {
     const { purchase_order_status, start_date, end_date } = req.query;
 
@@ -54,6 +68,17 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * Fetches purchase orders from an external API and saves new orders to the database.
+ * 
+ * This endpoint retrieves purchase orders and checks against existing orders in the database. 
+ * It inserts any new purchase orders that are not already stored.
+ * 
+ * @route GET /getAllPurchaseOrder
+ * @group Purchase Orders - Operations related to purchase orders
+ * @returns {Object} 200 - An object containing the status, success flag, data, and message
+ * @returns {Object} 500 - An object containing the status, success flag, error message, and additional error code
+ */
 router.get('/getAllPurchaseOrder', async (req, res) => {
     try {
         const config = createAxiosConfig(

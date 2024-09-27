@@ -12,11 +12,24 @@ const saltRounds = 10;
 
 const router = express.Router();
 
+/**
+ * Parses a Xero date string and converts it to a JavaScript Date object.
+ *
+ * @param {string} dateString - The Xero date string to be parsed.
+ * @returns {Date|null} The parsed JavaScript Date object, or null if the format is invalid.
+ */
 const parseXeroDate = (dateString) => {
   const timestamp = parseInt(dateString.replace(/\/Date\((\d+)\)\//, '$1'), 10);
   return new Date(timestamp);
 };
 
+/**
+ * Retrieves all users from the database.
+ *
+ * @route GET /
+ * @returns {Object} 200 - An object containing the success flag, message, and the list of users
+ * @returns {Object} 500 - An object containing the success flag and error message for server errors
+ */
 router.get('/', async (req, res) => {
   try {
       const users = await User.find({});
@@ -26,6 +39,13 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * Retrieves all users from an external API and stores new users in the database.
+ *
+ * @route GET /getAllUsers
+ * @returns {Object} 200 - An object containing the success flag, message, and user data
+ * @returns {Object} 500 - An object containing the success flag, error message, code, and empty data for server errors
+ */
 router.get('/getAllUsers', async (req, res) => {
   try {
       const config = createAxiosConfig(
@@ -68,11 +88,34 @@ router.get('/getAllUsers', async (req, res) => {
   }
 });
 
+/**
+ * Validates the password based on defined criteria.
+ * 
+ * @param {string} password - The password to validate
+ * @returns {boolean} True if the password is valid, otherwise false
+ */
 const isValidPassword = (password) => {
   const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
   return regex.test(password);
 };
 
+/**
+ * Registers a new user in the system.
+ *
+ * @route POST /register
+ * @param {string} first_name.required - The first name of the user
+ * @param {string} last_name.required - The last name of the user
+ * @param {string} email.required - The email address of the user
+ * @param {string} role_id.required - The ID of the user's role
+ * @param {string} password.required - The password for the user
+ * @param {string} confirm_password.required - The confirmation password
+ * @param {boolean} [status] - The status of the user (default: true)
+ * @param {boolean} [is_deleted] - Indicates if the user is deleted (default: false)
+ * @returns {Object} 200 - User registration successful
+ * @returns {Object} 400 - Validation error
+ * @returns {Object} 404 - Role not found
+ * @returns {Object} 500 - Server error
+ */
 router.post('/register', async (req, res) => {
   try {
     const { 
@@ -133,7 +176,16 @@ router.post('/register', async (req, res) => {
     res.status(500).json({status: 500, success: false, message: 'Something went wrong!' });
   }
 });
-
+/**
+ * User login endpoint.
+ *
+ * @route POST /login
+ * @param {string} email.required - The email address of the user
+ * @param {string} password.required - The password of the user
+ * @returns {Object} 200 - User login successful
+ * @returns {Object} 400 - Invalid email or password
+ * @returns {Object} 500 - Server error
+ */
 router.post('/login', async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -177,6 +229,18 @@ router.post('/login', async (req, res) => {
       }
 });
 
+/**
+ * Update user profile endpoint.
+ * 
+ * @route POST /profile/{id}
+ * @param {string} id.path.required - The ID of the user to update
+ * @param {string} first_name.body - The first name of the user
+ * @param {string} last_name.body - The last name of the user
+ * @returns {Object} 200 - User profile updated successfully
+ * @returns {Object} 400 - Invalid user ID format or missing fields
+ * @returns {Object} 404 - User not found
+ * @returns {Object} 500 - Server error
+ */
 router.post('/profile/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -203,6 +267,17 @@ router.post('/profile/:id', async (req, res) => {
   }
 });
 
+/**
+ * Change user password endpoint.
+ *
+ * @route POST /change_password/{id}
+ * @param {string} id.path.required - The ID of the user whose password is being changed
+ * @param {string} password.body.required - The new password for the user
+ * @returns {Object} 200 - User password updated successfully
+ * @returns {Object} 400 - Invalid user ID format, missing password, or invalid password format
+ * @returns {Object} 404 - User not found
+ * @returns {Object} 500 - Server error
+ */
 router.post('/change_password/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -232,6 +307,16 @@ router.post('/change_password/:id', async (req, res) => {
   }
 });
 
+
+/**
+ * Forgot password endpoint.
+ *
+ * @route POST /forgot-password
+ * @param {string} email.body.required - The email of the user requesting a password reset
+ * @returns {Object} 200 - Password reset link sent successfully
+ * @returns {Object} 400 - Invalid email format or user not found
+ * @returns {Object} 500 - Server error
+ */
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;

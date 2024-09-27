@@ -7,6 +7,12 @@ dotenv.config();
 
 const router = express.Router();
 
+/**
+ * Fetches all roles from the database.
+ *
+ * @returns {Object} 200 - An object containing the status, success flag, message, and the array of roles
+ * @returns {Object} 500 - An object containing the status, success flag, and error message
+ */
 router.get('/', async (req, res) => {
   try {
     const roles = await Role.find({});
@@ -16,6 +22,19 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * Creates a new role in the database.
+ *
+ * @param {string} name.body.required - The name of the role
+ * @param {Array} permission.body.required - The permissions associated with the role
+ * @param {Array} action_permission.body.required - The actions that the role is permitted to perform
+ * @param {boolean} [is_listing.body] - Indicates if the role is listed (optional)
+ * @param {boolean} [status.body] - Indicates if the role is active (optional)
+ * @param {boolean} [is_deleted.body] - Indicates if the role is deleted (optional)
+ * @returns {Object} 200 - An object containing the status, success flag, message, and the newly created role
+ * @returns {Object} 400 - An object containing the status, success flag, and error message if required fields are missing
+ * @returns {Object} 500 - An object containing the status, success flag, and error message for server errors
+ */
 router.post('/', async (req, res) => {
   try {
     const { name, permission, action_permission, is_listing, status, is_deleted } = req.body;
@@ -40,6 +59,21 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * Updates an existing role in the database by ID.
+ * 
+ * @route POST /update/{id}
+ * @param {string} id.path.required - The ID of the role to be updated
+ * @param {string} [name.body] - The updated name of the role (optional)
+ * @param {Array} [permission.body] - The updated permissions associated with the role (optional)
+ * @param {Array} [action_permission.body] - The updated actions that the role is permitted to perform (optional)
+ * @param {boolean} [is_listing.body] - Indicates if the role is listed (optional)
+ * @param {boolean} [status.body] - Indicates if the role is active (optional)
+ * @returns {Object} 200 - An object containing the status, success flag, message, and the updated role
+ * @returns {Object} 400 - An object containing the status, success flag, and error message if the ID format is invalid or required fields are missing
+ * @returns {Object} 404 - An object containing the status, success flag, and error message if the role is not found
+ * @returns {Object} 500 - An object containing the status, success flag, and error message for server errors
+ */
 router.post('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
